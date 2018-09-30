@@ -8,6 +8,7 @@ Created on Fri Sep 28 18:36:47 2018
 import networkx as nx
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 
 
 def ldata(archive):
@@ -33,6 +34,7 @@ def degrees(grafo, node = 'All'):
 Directorio = 'C:/Users/noelp/Documents/Git/Redes-TP2'
 
 Essential=ldata(Directorio + '/tc02Data/Essential_ORFs_paperHe.txt')
+Essential = [Essential[m][1] for m in range(2,len(Essential[2:])-2)]
 APMS=ldata(Directorio + '/tc02Data/yeast_AP-MS.txt')
 LIT=ldata(Directorio + '/tc02Data/yeast_LIT.txt')
 LIT_reguly=ldata(Directorio + '/tc02Data/yeast_LIT_Reguly.txt')
@@ -45,7 +47,7 @@ G_Y2H=nx.Graph(); G_LIT=nx.Graph(); G_APMS=nx.Graph();
 G_Y2H.add_edges_from(Y2H); G_LIT.add_edges_from(LIT); G_APMS.add_edges_from(APMS); 
 
 
-#%% Calculo cosas
+#%% TABLA 1
 redes=[G_Y2H,G_LIT,G_APMS]
 
 redes = [  max(nx.connected_component_subgraphs(r),key=len) for r in redes ]
@@ -53,9 +55,6 @@ redes = [  max(nx.connected_component_subgraphs(r),key=len) for r in redes ]
 
 nodes=[]; edges=[]; kmedio=[]; kmax=[]; kmin=[]; 
 clustl=[]; clustg=[]; densidad=[]; diam=[];
-
-
-
 
 pos=0
 for red in redes:
@@ -66,7 +65,7 @@ for red in redes:
     clustl.append(nx.average_clustering(red))
     pos+=1
 
-#%% Grafico tabla
+#%% TABLA 2
 
 caract = pd.DataFrame({ 'red':['Y2H','LIT','APMS'], 
                         'N':nodes,
@@ -106,6 +105,59 @@ caract = pd.DataFrame(Overlap)
 print(caract)
 
 
+#%% FIGURA 1-a
+
+def essential(graph, esential):
+    es = []
+    for n in list(graph.nodes()):
+        for m in  esential:
+            if n == m:
+                es.append(n)
+    return es, len(es)
+            
+
+
+def hub_cutoff(graph, nodes):
+    N = graph.number_of_nodes()             #Número de nodos del wacho
+    frac_specialhubs = []                   #Fracción de hubs especiales
+    frac_hubs = []
+    deg = 0                                 #Grado mínimo a partir del cual considero a un nodo un hub
+    while deg <= max(degrees(graph, node='All')):
+        hubs = []                           #Listita de hubs
+        for n in graph.nodes():
+            #Me fijo si el grado del nodo es igual o mayor a partir del cual puede ser hub
+            
+            if degrees(graph,node=n) >= deg:
+                hubs.append(n)
+        #Ahora voy a contar cuantos de esos hubs es esencial.
+        if len(hubs) != 0:
+            number = 0      
+            for n in hubs:
+                for m in nodes:
+                    if n == m:
+                        number += 1
+            frac_specialhubs.append(number/len(hubs))
+            frac_hubs.append(len(hubs)/N)
+            deg +=1
+        else:
+            deg +=1
+    return frac_specialhubs, frac_hubs
+
+f_Y2H, d_Y2H =hub_cutoff(G_Y2H, essential(G_Y2H,Essential)[0])
+f_LIT, d_LIT =hub_cutoff(G_LIT, essential(G_LIT,Essential)[0])
+f_APMS, d_APMS =hub_cutoff(G_APMS, essential(G_APMS,Essential)[0])
+
+plt.figure(1)
+plt.plot(d_Y2H, f_Y2H,'g-', label='Y2H')
+plt.plot(d_LIT, f_LIT,'r-', label='LIT')
+plt.plot(d_APMS, f_APMS,'b-', label='APMS')
+plt.xlabel('Fracción de hubs', fontsize=12)
+plt.ylabel('Fracción de hubs especiales',fontsize=12)
+plt.legend()
+plt.grid(linestyle=':')
+plt.show()
+   
+ 
 
 
 
