@@ -9,8 +9,9 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from datetime import datetime
 
-
+#%%
 def ldata(archive):
     f=open(archive)
     data=[]
@@ -158,7 +159,40 @@ plt.grid(linestyle=':')
 plt.show()
    
  
+#%% EJC CENTRALIDADES
 
+
+##### MUY LENTO, MEJORAR!!!!!!
+
+
+graph = max(nx.connected_component_subgraphs(G_Y2H),key=len)
+centrality = nx.betweenness_centrality
+
+
+t0 = datetime.now()
+def remove(graph,centrality, val):
+    cent=[]
+    quant = centrality(graph)
+    for i in list(graph.nodes()):
+        if quant[i] >= val:
+            cent.append(i)
+    return cent
+
+c = [  ]
+mc = [  ] 
+
+for val in list(sorted(list(set(list(centrality(graph).values()))), reverse = True)):
+    N = graph.number_of_nodes()
+    cent = remove(graph,centrality,val)
+    graph.remove_nodes_from(cent)
+    if graph.number_of_nodes() != 0:
+        maxcomp = max(nx.connected_component_subgraphs(graph),key=len).number_of_nodes()/N
+        c.append(len(cent))
+        mc.append(maxcomp)
+print(datetime.now()-t0)    
+plt.plot(mc,c,'r-')
+    
+            
 
 
 
