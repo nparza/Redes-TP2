@@ -179,9 +179,10 @@ def remove(graph,centrality, val):
     return cent
 
 c = [  ]
-mc = [  ] 
-
-for val in list(sorted(list(set(list(centrality(graph).values()))), reverse = True)):
+mc = [  ]
+dt = np 
+val = 0
+while val <= min(list(centrality(graph).values())):
     N = graph.number_of_nodes()
     cent = remove(graph,centrality,val)
     graph.remove_nodes_from(cent)
@@ -189,6 +190,9 @@ for val in list(sorted(list(set(list(centrality(graph).values()))), reverse = Tr
         maxcomp = max(nx.connected_component_subgraphs(graph),key=len).number_of_nodes()/N
         c.append(len(cent))
         mc.append(maxcomp)
+    else:
+        
+
 print(datetime.now()-t0)    
 plt.plot(mc,c,'r-')
     
