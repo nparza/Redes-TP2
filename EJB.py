@@ -32,14 +32,14 @@ def degrees(grafo, node = 'All'):
 
 #%% Importo los datos y creo los grafos
 
-Directorio = 'C:/Users/noelp/Documents/Git/Redes-TP2'
+Directorio = ''
 
-Essential=ldata(Directorio + '/tc02Data/Essential_ORFs_paperHe.txt')
+Essential=ldata(Directorio + 'tc02Data/Essential_ORFs_paperHe.txt')
 Essential = [Essential[m][1] for m in range(2,len(Essential[2:])-2)]
-APMS=ldata(Directorio + '/tc02Data/yeast_AP-MS.txt')
-LIT=ldata(Directorio + '/tc02Data/yeast_LIT.txt')
-LIT_reguly=ldata(Directorio + '/tc02Data/yeast_LIT_Reguly.txt')
-Y2H=ldata(Directorio + '/tc02Data/yeast_Y2H.txt')
+APMS=ldata(Directorio + 'tc02Data/yeast_AP-MS.txt')
+LIT=ldata(Directorio + 'tc02Data/yeast_LIT.txt')
+LIT_reguly=ldata(Directorio + 'tc02Data/yeast_LIT_Reguly.txt')
+Y2H=ldata(Directorio + 'tc02Data/yeast_Y2H.txt')
 
 
 Redes_list = [Y2H,LIT,APMS]
@@ -170,27 +170,36 @@ centrality = nx.betweenness_centrality
 
 
 t0 = datetime.now()
-def remove(graph,centrality, val):
-    cent=[]
-    quant = centrality(graph)
-    for i in list(graph.nodes()):
-        if quant[i] >= val:
-            cent.append(i)
-    return cent
+#def remove(graph,centrality, val):
+#    cent=[]
+#    quant = centrality(graph)
+#    for i in list(graph.nodes()):
+#        if quant[i] >= val:
+#            cent.append(i)
+#    return quant, cent
 
 c = [  ]
 mc = [  ]
 dt = np 
-val = 0
-while val <= min(list(centrality(graph).values())):
-    N = graph.number_of_nodes()
-    cent = remove(graph,centrality,val)
-    graph.remove_nodes_from(cent)
-    if graph.number_of_nodes() != 0:
-        maxcomp = max(nx.connected_component_subgraphs(graph),key=len).number_of_nodes()/N
-        c.append(len(cent))
-        mc.append(maxcomp)
-    else:
+
+
+maxcomp = max(nx.connected_component_subgraphs(graph),key=len).number_of_nodes()
+N = graph.number_of_nodes()             #Nodos iniciales para normalizar
+while maxcomp > 2:
+    quant = list(centrality(graph).values())          #Calculo la centralidad de mis nodos
+    val = max(list(quant))    #Me quedo con la mas grande
+    removed = []                       #Nodos que voy a sacar
+    nodos = list(graph.nodes())
+    
+    for i in range(graph.number_of_nodes()):     #Me fijo si el nodo tiene la centralidad máxima
+        if quant[i] >= val:
+            removed.append(nodos[i])        #Me quedo con el que me voy a sacar
+            
+    graph.remove_nodes_from(removed)
+    maxcomp = max(nx.connected_component_subgraphs(graph),key=len).number_of_nodes()
+    c.append(len(removed)/N)
+    mc.append(maxcomp/N)
+        
         
 
 print(datetime.now()-t0)    
