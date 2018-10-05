@@ -32,14 +32,13 @@ def degrees(grafo, node = 'All'):
 
 #%% Importo los datos y creo los grafos
 
-Directorio = ''
 
-Essential=ldata(Directorio + 'tc02Data/Essential_ORFs_paperHe.txt')
+Essential=ldata('TC02_data/Essential_ORFs_paperHe.txt')
 Essential = [Essential[m][1] for m in range(2,len(Essential[2:])-2)]
-APMS=ldata(Directorio + 'tc02Data/yeast_AP-MS.txt')
-LIT=ldata(Directorio + 'tc02Data/yeast_LIT.txt')
-LIT_reguly=ldata(Directorio + 'tc02Data/yeast_LIT_Reguly.txt')
-Y2H=ldata(Directorio + 'tc02Data/yeast_Y2H.txt')
+APMS=ldata('TC02_data/yeast_AP-MS.txt')
+LIT=ldata('TC02_data/yeast_LIT.txt')
+LIT_reguly=ldata('TC02_data/yeast_LIT_Reguly.txt')
+Y2H=ldata('TC02_data/yeast_Y2H.txt')
 
 
 Redes_list = [Y2H,LIT,APMS]
@@ -149,9 +148,9 @@ f_LIT, d_LIT =hub_cutoff(G_LIT, essential(G_LIT,Essential)[0])
 f_APMS, d_APMS =hub_cutoff(G_APMS, essential(G_APMS,Essential)[0])
 
 plt.figure(1)
-plt.plot(d_Y2H, f_Y2H,'g-', label='Y2H')
-plt.plot(d_LIT, f_LIT,'r-', label='LIT')
-plt.plot(d_APMS, f_APMS,'b-', label='APMS')
+plt.plot(d_Y2H, f_Y2H,'g.', label='Y2H')
+plt.plot(d_LIT, f_LIT,'r.', label='LIT')
+plt.plot(d_APMS, f_APMS,'b.', label='APMS')
 plt.xlabel('Fracción de hubs', fontsize=12)
 plt.ylabel('Fracción de hubs especiales',fontsize=12)
 plt.legend()
