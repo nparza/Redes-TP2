@@ -171,9 +171,13 @@ def cent_cutoff(graph, centrality):
     mc = [  ]           #Nodos de la componente máxima
     
     maxcomp = max(nx.connected_component_subgraphs(graph),key=len).number_of_nodes()
-        
+    N = graph.number_of_nodes()                     #Nodos iniciales para normalizar    
+    
+    mc.append(maxcomp/N)
+    c.append(0)
+    
     while maxcomp > 2:
-        N = graph.number_of_nodes()                     #Nodos iniciales para normalizar
+        
         quant = list(dict(centrality(graph)).values())  #Calculo la centralidad de mis nodos
         val = max(list(quant))                          #Me quedo con la mas grande
         removed = []                                    #Nodos que voy a sacar
@@ -188,15 +192,14 @@ def cent_cutoff(graph, centrality):
         #Calculo la longitud de la componente máxima y la fracción de nodos que removí
         if graph.number_of_nodes() > 2:
             maxcomp = max(nx.connected_component_subgraphs(graph),key=len).number_of_nodes()
-            c.append(len(removed)/N)
+            c.append(c[-1]+len(removed)/N)
             mc.append(maxcomp/N)
         else:
             break
     return mc, c
 
 
-centralities = [degrees2dict, nx.betweenness_centrality, nx.subgraph_centrality, 
-                nx.eigenvector_centrality] 
+centralities = [degrees2dict, nx.betweenness_centrality, nx.subgraph_centrality] 
 
 Removed_nodes = []
 Max_comp = []
@@ -211,26 +214,14 @@ for i in centralities:
     Max_comp.append(mc)    
 
 plt.figure(1)
-plt.plot(Max_comp[0],Removed_nodes[0],'b-', label='Degrees')
-plt.plot(Max_comp[1],Removed_nodes[1],'r-', label='Betweenness')
-plt.plot(Max_comp[2],Removed_nodes[2],'y-', label='Subgraph')
+plt.plot(Removed_nodes[0],Max_comp[0],'b.', label='Degrees')
+plt.plot(Max_comp[1],Removed_nodes[1],'r.', label='Betweenness')
+plt.plot(Removed_nodes[2],Max_comp[2],'y.', label='Subgraph')
 #plt.plot(Max_comp[3],Removed_nodes[3],'g.', label='Eigenvector')
 plt.legend()
 plt.show(1)
 
 print(datetime.now()-t0)    
-
-
-#%%
-
-
-
-def degree_dist(graph,lista):
-    
-
-
-
-
 
 
 
