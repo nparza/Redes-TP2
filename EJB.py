@@ -30,8 +30,9 @@ G_Y2H=nx.Graph(); G_LIT=nx.Graph(); G_APMS=nx.Graph();
 G_Y2H.add_edges_from(Y2H); G_LIT.add_edges_from(LIT); G_APMS.add_edges_from(APMS); 
 
 
-#%% TABLA 1
-redes=[G_Y2H,G_LIT,G_APMS]
+#%% TABLA 1 Zotenko - Calcular datos
+
+redes = [G_Y2H,G_LIT,G_APMS]
 
 redes = [  max(nx.connected_component_subgraphs(r),key=len) for r in redes ]
 
@@ -48,7 +49,7 @@ for red in redes:
     clustl.append(nx.average_clustering(red))
     pos+=1
 
-#%% TABLA 2
+#%% TABLA 1 Zotenko - Pandas
 
 caract = pd.DataFrame({ 'red':['Y2H','LIT','APMS'], 
                         'N':nodes,
@@ -60,12 +61,11 @@ caract = pd.DataFrame({ 'red':['Y2H','LIT','APMS'],
 caract = caract[['red','N','L','k_medio','c_local']]
 
 #Uso cols para copiar y pegar y hacer más rapido la redefinición de lugares
-cols=list(caract.columns.values)
+cols = list(caract.columns.values)
 
 print(caract)
 
-#%%
-
+#%% TABLA 2 Zotenko - Overlap
 
 Overlap = np.empty([len(redes),len(redes)])
 
@@ -88,7 +88,7 @@ caract = pd.DataFrame(Overlap)
 print(caract)
 
 
-#%% FIGURA 1-a
+#%% FIGURA 1-a Zotenko
 
 def essential(graph, esential):
     es = []
