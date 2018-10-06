@@ -70,8 +70,8 @@ def cent_cutoff(graph, centrality):
 
 #%% 
 
-'''Cuidado al correr esto porque redefine 
-listas que pueden tener cosas como vacías'''
+''' Cuidado al correr esto porque redefine 
+listas que pueden tener cosas '''
 
 Removed_nodes = []
 Max_comp = []
@@ -107,7 +107,7 @@ for i in centralities:
     Max_comp.append(mc)    
 
 
-#%% Grafico
+#%% Grafico - Figura 3 Zotenko
 
 plt.figure(1)
 plt.plot(Removed_nodes[0],Max_comp[0],'b.', label='Degrees')
