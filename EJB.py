@@ -10,35 +10,18 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from datetime import datetime
-
-#%%
-def ldata(archive):
-    f=open(archive)
-    data=[]
-    for line in f:
-        line=line.strip()
-        col=line.split()
-        data.append(col)	
-    return data
-
-
-def degrees(grafo, node = 'All'):
-    if node == 'All':
-        lista=list(dict(grafo.degree).values())
-    else:
-        lista= grafo.degree(node)
-    return lista
+from func import *
 
 
 #%% Importo los datos y creo los grafos
 
 
-Essential=ldata('TC02_data/Essential_ORFs_paperHe.txt')
+Essential = ldata('TC02_data/Essential_ORFs_paperHe.txt')
 Essential = [Essential[m][1] for m in range(2,len(Essential[2:])-2)]
-APMS=ldata('TC02_data/yeast_AP-MS.txt')
-LIT=ldata('TC02_data/yeast_LIT.txt')
-LIT_reguly=ldata('TC02_data/yeast_LIT_Reguly.txt')
-Y2H=ldata('TC02_data/yeast_Y2H.txt')
+APMS = ldata('TC02_data/yeast_AP-MS.txt')
+LIT = ldata('TC02_data/yeast_LIT.txt')
+LIT_reguly = ldata('TC02_data/yeast_LIT_Reguly.txt')
+Y2H = ldata('TC02_data/yeast_Y2H.txt')
 
 
 Redes_list = [Y2H,LIT,APMS]
@@ -218,19 +201,6 @@ plt.legend()
 plt.show(1)
 
 print(datetime.now()-t0)    
-
-
-#%%
-
-
-
-def degree_dist(graph,lista):
-    
-
-
-
-
-
 
 
 
