@@ -38,7 +38,7 @@ def degrees2dict(graph):
     return d
 
 
-def cent_cutoff(graph, centrality):
+def cent_cutoff(graph, centrality, connected=False):
     
     c = []          # Fracción de nodos removidos en cada iteración
     mc = []         # Nodos de la componente máxima
@@ -53,20 +53,33 @@ def cent_cutoff(graph, centrality):
     
     while maxcomp > 2:
         
-        quant = list(dict(centrality(graph)).values())  # Calculo centralidad 
-        val = max(list(quant))                          # Centralidad más grande
-        removed = []                                    # Nodos que voy a sacar
-        nodos = list(graph.nodes())
+        # Calculo centralidad de los nodos
+        
+        if not connected:
+            quant = list(dict(centrality(graph)).values())
+            nodos = list(graph.nodes())
+        
+        if connected:
+            quant = list(dict(centrality(max(nx.connected_component_subgraphs(graph), 
+                                             key=len))).values())
+            nodos = list(max(nx.connected_component_subgraphs(graph),
+                  key=len).nodes())
+
+        
+        val = max(list(quant))      # Centralidad más grande
+        removed = []                # Nodos que voy a sacar
         
         # Recorro la lista de nodos eligiendo los que tienen centralidad máxima
+        # y los guardo en una lista
         
-        for i in range(graph.number_of_nodes()):     
+        for i in range(len(nodos)):     
             if quant[i] >= val:
-                removed.append(nodos[i])    # Guardo el que voy a sacar
+                removed.append(nodos[i])
                 
         graph.remove_nodes_from(removed)
         
-        # Calculo la longitud de la componente máxima y la fracción de nodos que removí
+        # Calculo la longitud de la componente máxima y 
+        # la fracción de nodos que removí
         
         if graph.number_of_nodes() > 2:
             maxcomp = max(nx.connected_component_subgraphs(graph),
@@ -147,14 +160,14 @@ centrality_type[label] = 'NA'
 removed_nodes[label] = c
 max_comp[label] = mc
 
-#%% CURRENT FLOW BETWEENNESS - no anda todavía
+#%% CURRENT FLOW BETWEENNESS - NetworkXError: Graph not connected.
 
 cent = nx.current_flow_betweenness_centrality
 label = 'current flow'
 
 ti = datetime.now()
 graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
-mc, c = cent_cutoff(graph,cent)
+mc, c = cent_cutoff(graph,cent,connected=True)
 print('tarda en correr: ', datetime.now()-ti)
 
 centrality_type[label] = 'betweenness'
@@ -196,7 +209,7 @@ plot('degree','r')
 plot('shortest-path','magenta')
 plot('subgraph','lime')
 plot('closeness','gold')
-#plot('current flow',)
+plot('current flow','cyan')
 plot('eigenvector','darkgoldenrod')
 applyPlotStyle()
 plt.show(10)
