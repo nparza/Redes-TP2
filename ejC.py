@@ -33,15 +33,18 @@ G_Y2H.add_edges_from(Y2H); G_LIT.add_edges_from(LIT); G_APMS.add_edges_from(APMS
 #%% Funciones 
 
 def degrees2dict(graph):
+    
     d = dict(graph.degree)
     return d
 
+
 def cent_cutoff(graph, centrality):
-    c = [  ]            #Fracción de nodos removidos en cada iteración
-    mc = [  ]           #Nodos de la componente máxima
+    
+    c = []          # Fracción de nodos removidos en cada iteración
+    mc = []         # Nodos de la componente máxima
     
     maxcomp = max(nx.connected_component_subgraphs(graph),key=len).number_of_nodes()
-    N = graph.number_of_nodes()                     #Nodos iniciales para normalizar    
+    N = graph.number_of_nodes()     # Nodos iniciales para normalizar    
     
     mc.append(maxcomp/N)
     c.append(0)
@@ -92,10 +95,10 @@ removed_nodes[label] = c
 max_comp[label] = mc
 
 
-#%% BETWEENNESS 
+#%% SHORTEST-PATH BETWEENNESS - 5 min 
 
 cent = nx.betweenness_centrality
-label = 'betweenness'
+label = 'shortest-path'
 
 ti = datetime.now()
 graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
@@ -106,7 +109,7 @@ removed_nodes[label] = c
 max_comp[label] = mc
 
 
-#%% SUBGRAPH 
+#%% SUBGRAPH - 1.5 min 
 
 cent = nx.subgraph_centrality
 label = 'subgraph'
@@ -119,6 +122,31 @@ print('tarda en correr: ', datetime.now()-ti)
 removed_nodes[label] = c
 max_comp[label] = mc
 
+#%% CLOSENESS - 10 min
+
+cent = nx.closeness_centrality
+label = 'closeness'
+
+ti = datetime.now()
+graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+mc, c = cent_cutoff(graph,cent)
+print('tarda en correr: ', datetime.now()-ti)
+
+removed_nodes[label] = c
+max_comp[label] = mc
+
+#%% CURRENT FLOW BETWEENNESS
+
+cent = nx.current_flow_betweenness_centrality
+label = 'current flow'
+
+ti = datetime.now()
+graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+mc, c = cent_cutoff(graph,cent)
+print('tarda en correr: ', datetime.now()-ti)
+
+removed_nodes[label] = c
+max_comp[label] = mc
 
 #%% Grafico - FIGURA 3 Zotenko
 
@@ -126,7 +154,8 @@ def plot(label,color):
     plt.plot(removed_nodes[label],
              max_comp[label],
              color = color, 
-             label = label)
+             label = label,
+             linewidth = '0.9')
     
 def applyPlotStyle():
     plt.xlabel('fracción de nodos',weight='bold',fontsize=11)
@@ -136,8 +165,10 @@ def applyPlotStyle():
     
 plt.figure(10)
 plot('degree','b')
-plot('betweenness','r')
+plot('shortest-path','r')
 plot('subgraph','y')
+plot('closeness','m')
+#plot('current flow',)
 applyPlotStyle()
 plt.show(10)
   
