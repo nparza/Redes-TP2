@@ -68,53 +68,77 @@ def cent_cutoff(graph, centrality):
             break
     return mc, c
 
+
 #%% 
 
 ''' Cuidado al correr esto porque redefine 
-listas que pueden tener cosas '''
+diccionarios que pueden tener cosas '''
 
-Removed_nodes = []
-Max_comp = []
+removed_nodes = dict()
+max_comp = dict()
 
 
-#%% Calcula UNA sola centralidad 
+#%% DEGREES 
 
-#cent = degrees2dict
-#cent = nx.betweenness_centrality
-cent = nx.subgraph_centrality
+cent = degrees2dict
+label = 'degree'
 
 ti = datetime.now()
-
 graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
 mc, c = cent_cutoff(graph,cent)
-Removed_nodes.append(c)
-Max_comp.append(mc)
-
 print('tarda en correr: ', datetime.now()-ti)
 
+removed_nodes[label] = c
+max_comp[label] = mc
 
-#%% Calcula todas las centralidades juntas
+
+#%% BETWEENNESS 
+
+cent = nx.betweenness_centrality
+label = 'betweenness'
+
+ti = datetime.now()
+graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+mc, c = cent_cutoff(graph,cent)
+print('tarda en correr: ', datetime.now()-ti)
+
+removed_nodes[label] = c
+max_comp[label] = mc
+
+
+#%% SUBGRAPH 
+
+cent = nx.subgraph_centrality
+label = 'subgraph'
+
+ti = datetime.now()
+graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+mc, c = cent_cutoff(graph,cent)
+print('tarda en correr: ', datetime.now()-ti)
+
+removed_nodes[label] = c
+max_comp[label] = mc
+
+
+#%% Grafico - FIGURA 3 Zotenko
+
+def plot(label,color):
+    plt.plot(removed_nodes[label],
+             max_comp[label],
+             color = color, 
+             label = label)
     
-centralities = [degrees2dict, nx.betweenness_centrality, nx.subgraph_centrality] 
-
-t0 = datetime.now()
-
-for i in centralities:
-    graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
-    mc, c = cent_cutoff(graph,i)
-    print(i,' ',datetime.now()-t0)
-    Removed_nodes.append(c)
-    Max_comp.append(mc)    
-
-
-#%% Grafico - Figura 3 Zotenko
-
-plt.figure(1)
-plt.plot(Removed_nodes[0],Max_comp[0],'b.', label='Degrees')
-plt.plot(Removed_nodes[1],Max_comp[1],'r.', label='Betweenness')
-plt.plot(Removed_nodes[2],Max_comp[2],'y.', label='Subgraph')
-#plt.plot(Max_comp[3],Removed_nodes[3],'g.', label='Eigenvector')
-plt.legend()
-plt.show(1)
+def applyPlotStyle():
+    plt.xlabel('fracción de nodos',weight='bold',fontsize=11)
+    plt.ylabel('componente más grande',weight='bold',fontsize=11)
+    plt.grid(linestyle=':')
+    plt.legend()
+    
+plt.figure(10)
+plot('degree','b')
+plot('betweenness','r')
+plot('subgraph','y')
+applyPlotStyle()
+plt.show(10)
   
 
