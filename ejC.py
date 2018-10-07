@@ -122,7 +122,7 @@ graph = max(nx.connected_component_subgraphs(G_APMS),key=len)
 mc, c = cent_cutoff(graph,cent)
 print('tarda en correr: ', datetime.now()-ti)
 
-centrality_type[label] = 'NA'
+centrality_type[label] = 'local'
 removed_nodes[label] = c
 max_comp[label] = mc
 
@@ -140,7 +140,7 @@ centrality_type[label] = 'NA'
 removed_nodes[label] = c
 max_comp[label] = mc
 
-#%% CURRENT FLOW BETWEENNESS
+#%% CURRENT FLOW BETWEENNESS - no anda todavía
 
 cent = nx.current_flow_betweenness_centrality
 label = 'current flow'
@@ -153,6 +153,21 @@ print('tarda en correr: ', datetime.now()-ti)
 centrality_type[label] = 'betweenness'
 removed_nodes[label] = c
 max_comp[label] = mc
+
+#%% EIGENVECTOR - no anda todavía
+
+cent = nx.eigenvector_centrality
+label = 'eigenvector'
+
+ti = datetime.now()
+graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+mc, c = cent_cutoff(graph,cent)
+print('tarda en correr: ', datetime.now()-ti)
+
+centrality_type[label] = 'local'
+removed_nodes[label] = c
+max_comp[label] = mc
+
 
 #%% Grafico - FIGURA 3 Zotenko
 
@@ -175,6 +190,7 @@ plot('shortest-path','r')
 plot('subgraph','y')
 plot('closeness','m')
 #plot('current flow',)
+#plot('eigenvector',)
 applyPlotStyle()
 plt.show(10)
   
