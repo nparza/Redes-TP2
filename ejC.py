@@ -43,7 +43,9 @@ def cent_cutoff(graph, centrality):
     c = []          # Fracción de nodos removidos en cada iteración
     mc = []         # Nodos de la componente máxima
     
-    maxcomp = max(nx.connected_component_subgraphs(graph),key=len).number_of_nodes()
+    maxcomp = max(nx.connected_component_subgraphs(graph),
+                  key=len).number_of_nodes()
+   
     N = graph.number_of_nodes()     # Nodos iniciales para normalizar    
     
     mc.append(maxcomp/N)
@@ -51,24 +53,29 @@ def cent_cutoff(graph, centrality):
     
     while maxcomp > 2:
         
-        quant = list(dict(centrality(graph)).values())  #Calculo la centralidad de mis nodos
-        val = max(list(quant))                          #Me quedo con la mas grande
-        removed = []                                    #Nodos que voy a sacar
+        quant = list(dict(centrality(graph)).values())  # Calculo centralidad 
+        val = max(list(quant))                          # Centralidad más grande
+        removed = []                                    # Nodos que voy a sacar
         nodos = list(graph.nodes())
         
-        #Recorro la lista de nodos eligiendo los que tienen la centralidad máxima
+        # Recorro la lista de nodos eligiendo los que tienen centralidad máxima
+        
         for i in range(graph.number_of_nodes()):     
             if quant[i] >= val:
-                removed.append(nodos[i])                #Me quedo con el que me voy a sacar
+                removed.append(nodos[i])    # Guardo el que voy a sacar
                 
         graph.remove_nodes_from(removed)
-        #Calculo la longitud de la componente máxima y la fracción de nodos que removí
+        
+        # Calculo la longitud de la componente máxima y la fracción de nodos que removí
+        
         if graph.number_of_nodes() > 2:
-            maxcomp = max(nx.connected_component_subgraphs(graph),key=len).number_of_nodes()
+            maxcomp = max(nx.connected_component_subgraphs(graph),
+                          key=len).number_of_nodes()
             c.append(c[-1]+len(removed)/N)
             mc.append(maxcomp/N)
         else:
             break
+    
     return mc, c
 
 
@@ -154,9 +161,9 @@ centrality_type[label] = 'betweenness'
 removed_nodes[label] = c
 max_comp[label] = mc
 
-#%% EIGENVECTOR - no anda todavía
+#%% EIGENVECTOR - 40 s
 
-cent = nx.eigenvector_centrality
+cent = nx.eigenvector_centrality_numpy
 label = 'eigenvector'
 
 ti = datetime.now()
@@ -176,21 +183,21 @@ def plot(label,color):
              max_comp[label],
              color = color, 
              label = label,
-             linewidth = '0.9')
+             linewidth = '1')
     
 def applyPlotStyle():
     plt.xlabel('fracción de nodos',weight='bold',fontsize=11)
     plt.ylabel('componente más grande',weight='bold',fontsize=11)
-    plt.grid(linestyle=':')
+    #plt.grid(linestyle=':')
     plt.legend()
     
 plt.figure(10)
-plot('degree','b')
-plot('shortest-path','r')
-plot('subgraph','y')
-plot('closeness','m')
+plot('degree','r')
+plot('shortest-path','magenta')
+plot('subgraph','lime')
+plot('closeness','gold')
 #plot('current flow',)
-#plot('eigenvector',)
+plot('eigenvector','darkgoldenrod')
 applyPlotStyle()
 plt.show(10)
   
