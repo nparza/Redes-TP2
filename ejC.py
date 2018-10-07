@@ -79,6 +79,7 @@ diccionarios que pueden tener cosas '''
 
 removed_nodes = dict()
 max_comp = dict()
+centrality_type = dict()
 
 
 #%% DEGREES 
@@ -91,6 +92,7 @@ graph = max(nx.connected_component_subgraphs(G_APMS),key=len)
 mc, c = cent_cutoff(graph,cent)
 print('tarda en correr: ', datetime.now()-ti)
 
+centrality_type[label] = 'local'
 removed_nodes[label] = c
 max_comp[label] = mc
 
@@ -105,6 +107,7 @@ graph = max(nx.connected_component_subgraphs(G_APMS),key=len)
 mc, c = cent_cutoff(graph,cent)
 print('tarda en correr: ', datetime.now()-ti)
 
+centrality_type[label] = 'betweenness'
 removed_nodes[label] = c
 max_comp[label] = mc
 
@@ -119,6 +122,7 @@ graph = max(nx.connected_component_subgraphs(G_APMS),key=len)
 mc, c = cent_cutoff(graph,cent)
 print('tarda en correr: ', datetime.now()-ti)
 
+centrality_type[label] = 'NA'
 removed_nodes[label] = c
 max_comp[label] = mc
 
@@ -132,6 +136,7 @@ graph = max(nx.connected_component_subgraphs(G_APMS),key=len)
 mc, c = cent_cutoff(graph,cent)
 print('tarda en correr: ', datetime.now()-ti)
 
+centrality_type[label] = 'NA'
 removed_nodes[label] = c
 max_comp[label] = mc
 
@@ -145,6 +150,7 @@ graph = max(nx.connected_component_subgraphs(G_APMS),key=len)
 mc, c = cent_cutoff(graph,cent)
 print('tarda en correr: ', datetime.now()-ti)
 
+centrality_type[label] = 'betweenness'
 removed_nodes[label] = c
 max_comp[label] = mc
 
