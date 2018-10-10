@@ -160,7 +160,7 @@ centrality_type[label] = 'NA'
 removed_nodes[label] = c
 max_comp[label] = mc
 
-#%% CURRENT FLOW BETWEENNESS - NetworkXError: Graph not connected.
+#%% CURRENT FLOW BETWEENNESS - 9 min
 
 cent = nx.current_flow_betweenness_centrality
 label = 'current flow'
