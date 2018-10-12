@@ -8,27 +8,32 @@ Created on Sat Oct  6 19:43:24 2018
 
 import networkx as nx
 import numpy as np
-import pandas as pd
 from matplotlib import pyplot as plt
 from datetime import datetime
 from func import *
 
 #%% Importo los datos y creo los grafos
 
-
 Essential = ldata('TC02_data/Essential_ORFs_paperHe.txt')
 Essential = [Essential[m][1] for m in range(2,len(Essential[2:])-2)]
+
 APMS = ldata('TC02_data/yeast_AP-MS.txt')
 LIT = ldata('TC02_data/yeast_LIT.txt')
-LIT_reguly = ldata('TC02_data/yeast_LIT_Reguly.txt')
 Y2H = ldata('TC02_data/yeast_Y2H.txt')
 
+LITr = ldata('TC02_data/yeast_LIT_Reguly.txt')
+LITr = [row[:2] for row in LITr]
+LITr.pop(0)
 
-Redes_list = [Y2H,LIT,APMS]
+G_Y2H = nx.Graph(); G_Y2H.add_edges_from(Y2H);
 
-G_Y2H=nx.Graph(); G_LIT=nx.Graph(); G_APMS=nx.Graph();
-G_Y2H.add_edges_from(Y2H); G_LIT.add_edges_from(LIT); G_APMS.add_edges_from(APMS); 
+G_LIT = nx.Graph(); G_LIT.add_edges_from(LIT); 
 
+G_LITr = nx.Graph(); G_LITr.add_edges_from(LITr)
+
+G_APMS = nx.Graph(); G_APMS.add_edges_from(APMS); 
+
+graphs = [G_Y2H,G_LIT,G_LITr,G_APMS]
 
 #%% Funciones 
 
