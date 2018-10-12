@@ -34,6 +34,12 @@ G_APMS = nx.Graph(); G_APMS.add_edges_from(APMS);
 
 graphs = [G_Y2H,G_LIT,G_LITr,G_APMS]
 
+#%% Label de cada grafo
+
+G_Y2H.graph['label'] = 'Y2H'
+G_LIT.graph['label'] = 'LIT'
+G_LITr.graph['label'] = 'LIT_r'
+G_APMS.graph['label'] = 'APMS'
 
 #%% Agrego atributo de esencialidad a los nodos de cada red
 
@@ -58,6 +64,7 @@ for graph in graphs:
 ''' Criterio para remover nodos no-esenciales con la misma distribución 
 de grado que los esenciales '''
 
+def remove_random(graph,rm_es):
 
 
         
@@ -67,30 +74,36 @@ de grado que los esenciales '''
 
 # Tamaño de la componente gigante post remover los nodos esenciales
 
-rm_es = []
+cg_es = dict()
 
 # Tamaño de la componente gigante post remover nodos random con la misma
 # distribución de grado
 
-rm_rand = []
+cg_rand = dict()
 
 # Las dos listas van a estar normalizadas por el número de nodos de la cg original
 
 
-
-for graph in Redes_list:
+for graph in graphs:
     
+    rm_es = []
     cg = max(nx.connected_component_subgraphs(graph), key=len)
     N = cg.number_of_nodes()  
     
-    # Remuevo los esenciales
+    # Remuevo los esenciales y los guardo en una lista
     
-    cg.remove_nodes_from(Essential)
+    nodos = list(cg.nodes())
+    
+    for i in range(len(nodos)):      
+       
+        if cg.nodes[nodos[i]]['Essential'] == True:
+            cg.remove_node(nodos[i])
+            rm_es.append(nodos[i])
+ 
     n = max(nx.connected_component_subgraphs(cg), key=len).number_of_nodes()
-    rm_es.append(n/N)
     
-    # Almaceno 
-    
+    cg_es[graph.graph['label']] = n/N
+
     
     
     

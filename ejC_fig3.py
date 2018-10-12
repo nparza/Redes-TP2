@@ -219,4 +219,4 @@ plot('eigenvector','darkgoldenrod')
 applyPlotStyle()
 plt.show(10)
   
-
+    
