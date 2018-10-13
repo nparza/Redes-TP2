@@ -41,35 +41,110 @@ G_LIT.graph['label'] = 'LIT'
 G_LITr.graph['label'] = 'LIT_r'
 G_APMS.graph['label'] = 'APMS'
 
-#%% Agrego atributo de esencialidad a los nodos de cada red
+#%% 
 
-for graph in graphs:
+# Agrego atributo de esencialidad a los nodos de cada red
+
+for graph in graphs:   
     
-    for node in list(graph.nodes()):
-        
+    for node in list(graph.nodes()):  
         essential = False
-        i = 0
-        
-        while essential == False and i < len(Essential):
-            
+        i = 0      
+        while essential == False and i < len(Essential):     
             if Essential[i] == node:
                 essential = True
-            
-            i += 1
-        
+            i += 1 
         graph.nodes[node]['Essential'] = essential
         
+#%%
+        
+# Agrego atributos al grafo relacionados a sus nodos esenciales
+            
+for graph in graphs:
+    
+    G = graph.copy()
+    cg = max(nx.connected_component_subgraphs(G), key=len)
+    ess = []
+    degree_ess = []
+    for node in cg:
+        if cg.nodes[node]['Essential'] == True:
+            ess.append(node)
+            degree_ess.append(cg.degree[node])
+    
+    # Lista de nodos esenciales de su componente gigante
+    
+    graph.graph['cg_ess'] = ess
+    
+    # Distrubución de grado de los nodos esenciales de su comp. gigante
+    
+    graph.graph['cg_ess_deg'] = degree_ess
+
+    
 #%% 
+    
+import random
 
 ''' Criterio para remover nodos no-esenciales con la misma distribución 
 de grado que los esenciales '''
 
-def remove_random(graph,rm_es):
-
-
+def nearest(degree,K):
+    
+    # Devuelve el grado más cercano a degree 
+    # que tiene nodos no esenciales para remover
+    
+    for key,value in list(K.items()):
+        if value == []:
+            del K[key]
+    
+    if degree in list(K.keys()):
+        return degree
+    else:
+        listk = list(K.keys())
+        listk.append(degree)
+        ordenada = sorted(listk)
+        i = ordenada.index(degree)
+        if i == len(ordenada)-1:
+            return ordenada[i-1]
+        dist_izq = ordenada[i] - ordenada[i-1]
+        dist_der = ordenada[i+1] - ordenada[i]
+        if dist_izq < dist_der:
+            return ordenada[i-1]
+        elif dist_izq == dist_der:
+            return ordenada[random.choice([i-1,i+1])]
+        else:
+            return ordenada[i+1]
         
-        
 
+def remove_random(graph):
+    
+    ## Devuelve una lista de nodos no-esenciales
+    
+    G = graph.copy()
+    cg = max(nx.connected_component_subgraphs(G), key=len)
+    rand = []
+    
+    K = dict()
+    for i in set(dict(cg.degree).values()):
+        K[i] = []
+    for node in list(cg.nodes()):
+        if cg.nodes[node]['Essential'] == False:
+            K[graph.degree[node]].append(node)
+    
+    Kess = dict()
+    for i in set(graph.graph['cg_ess_deg']):
+        Kess[i] = 0
+    for k in graph.graph['cg_ess_deg']:
+        Kess[k] += 1
+    
+    for degree in Kess: 
+        for m in range(Kess[degree]):
+            near_deg = nearest(degree,K)
+            node = random.choice(K[near_deg])
+            rand.append(node)
+            K[near_deg].remove(node)
+    
+    return rand
+            
 #%% Construyo los datos para la TABLA 3
 
 # Tamaño de la componente gigante post remover los nodos esenciales
@@ -86,44 +161,54 @@ cg_rand = dict()
 
 for graph in graphs:
     
-    rm_es = []
-    cg = max(nx.connected_component_subgraphs(graph), key=len)
-    N = cg.number_of_nodes()  
-    
-    # Remuevo los esenciales y los guardo en una lista
-    
-    nodos = list(cg.nodes())
-    
-    for i in range(len(nodos)):      
-       
-        if cg.nodes[nodos[i]]['Essential'] == True:
-            cg.remove_node(nodos[i])
-            rm_es.append(nodos[i])
- 
-    n = max(nx.connected_component_subgraphs(cg), key=len).number_of_nodes()
-    
-    cg_es[graph.graph['label']] = n/N
-
+    CG_orishinal = max(nx.connected_component_subgraphs(graph), key=len)
+    N_orishinal = CG_orishinal.number_of_nodes()
     
     
+    # Remuevo nodos esenciales
+    
+    GRAPH = graph.copy()
+    CG = max(nx.connected_component_subgraphs(GRAPH), key=len)
+    CG.remove_nodes_from(graph.graph['cg_ess'])
+    N = max(nx.connected_component_subgraphs(CG), key=len).number_of_nodes()
+    
+    cg_es[graph.graph['label']] = N/N_orishinal
+    
+    
+    # Remuevo nodos no-esenciales
+    
+    GRAPH = graph.copy()
+    CG = max(nx.connected_component_subgraphs(GRAPH), key=len)
+    CG.remove_nodes_from(remove_random(graph))
+    N = max(nx.connected_component_subgraphs(CG), key=len).number_of_nodes()
+    
+    cg_rand[graph.graph['label']] = N/N_orishinal
+   
+
+    
+    
+    
+    
+    
+    
+
+
+
+    
     
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
