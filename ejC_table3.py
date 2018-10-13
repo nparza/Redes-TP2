@@ -192,7 +192,26 @@ for graph in graphs:
    
 
     
-    
+#%% Armo el DataFrame
+
+redes = ['Y2H','LIT','LIT_r','APMS']
+
+ess = []
+non_ess = [] 
+
+for red in redes:
+    ess.append('%.3f' % cg_es[red])
+    non_ess.append('%.3f +/- %.3f' % (cg_rand[red][0],
+                                      cg_rand[red][1]))
+   
+caract = pd.DataFrame({ 'Red': ['Y2H','LIT','LIT_r','APMS'], 
+                        'Esenciales': ess,
+                        'Random no-esenciales': non_ess
+                      })
+
+caract = caract[['Red','Esenciales','Random no-esenciales']]
+
+print(caract)    
     
     
 
