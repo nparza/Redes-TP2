@@ -177,36 +177,25 @@ for graph in graphs:
     
     # Remuevo nodos no-esenciales
     
-    GRAPH = graph.copy()
-    CG = max(nx.connected_component_subgraphs(GRAPH), key=len)
-    CG.remove_nodes_from(remove_random(graph))
-    N = max(nx.connected_component_subgraphs(CG), key=len).number_of_nodes()
+    rand_iter = 100
+    cg_rand_list = []
     
-    cg_rand[graph.graph['label']] = N/N_orishinal
+    for i in range(rand_iter):
+        GRAPH = graph.copy()
+        CG = max(nx.connected_component_subgraphs(GRAPH), key=len)
+        CG.remove_nodes_from(remove_random(graph))
+        N = max(nx.connected_component_subgraphs(CG), key=len).number_of_nodes()
+        cg_rand_list.append(N)
+    
+    cg_rand[graph.graph['label']] = [np.mean(cg_rand_list)/N_orishinal,
+                                     np.std(cg_rand_list)/N_orishinal]
    
 
     
     
     
     
-    
-    
 
-
-
-    
-    
-
-
-
-
-    
-    
-    
-    
-    
-    
-    
     
     
     
