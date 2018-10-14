@@ -89,6 +89,7 @@ de grado que los esenciales '''
 
 def nearest(degree,K):
     
+    # Se usa en el entorno de remove_random
     # Devuelve el grado más cercano a degree 
     # que tiene nodos no esenciales para remover
     
@@ -117,7 +118,15 @@ def nearest(degree,K):
 
 def remove_random(graph):
     
-    ## Devuelve una lista de nodos no-esenciales
+    '''
+    Devuelve una lista de nodos random no-esenciales, tal que su distribución de grado
+    es lo "más parecida posible" a la distribución de grado de los nodos esenciales
+    de su componente gigante.
+    
+    K (dict): key = degree, value = nodos no esenciales con ese degree
+    K es modificada a medida que voy agregando nodos a rand.
+    Kess (dict): key = degree, value = cant. de nodos esenciales con ese degree
+    '''
     
     G = graph.copy()
     cg = max(nx.connected_component_subgraphs(G), key=len)

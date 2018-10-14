@@ -135,11 +135,13 @@ def cent_cutoff(graph, centrality, connected=False):
         # Calculo la longitud de la componente máxima y 
         # la fracción de nodos que removí
         
-        while G.number_of_nodes() > 2:
+        if G.number_of_nodes() > 2:
             maxcomp = max(nx.connected_component_subgraphs(G),
                           key=len).number_of_nodes()
             c.append(c[-1]+len(removed)/N)
             mc.append(maxcomp/N)
+        else:
+            break
     
     return mc, c
 
@@ -202,33 +204,55 @@ removed_nodes = dict()
 max_comp = dict()
 centrality_type = dict()
 
+RED = G_Y2H
+
 #%% ESSENTIALS - Remuevo los nodos esenciales
 
-graph = G_APMS
 label = 'essentials'
 
-G = graph.copy()
+G = RED.copy()
 CG = max(nx.connected_component_subgraphs(G), key=len)
 N = CG.number_of_nodes()
-CG.remove_nodes_from(graph.graph['cg_ess'])
+CG.remove_nodes_from(RED.graph['cg_ess'])
 n = max(nx.connected_component_subgraphs(CG), key=len).number_of_nodes()
 
 
-removed_nodes[label] = len(graph.graph['cg_ess'])/N
-max_comp[label] = n/N
+removed_nodes[label] = [len(graph.graph['cg_ess'])/N]
+max_comp[label] = [n/N]
 
-#%% RANDOM - 1.5 min
+#%% RANDOM - 1.5 min x 10
 
 label = 'random'
 
 ti = datetime.now()
-graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
-mc, c = rand_cutoff(graph, 1)
-print('tarda en correr: ', datetime.now()-ti)
+graph = max(nx.connected_component_subgraphs(RED),key=len)
 
+C = []
+MC = []
+for i in range(10):
+    mc, c = rand_cutoff(graph, 1)
+    C.append(c)
+    MC.append(mc)
+    print('tarda en correr: ', datetime.now()-ti)
+    
+
+l = len(C[0])
+for i in range(len(C)):
+    if len(C[i]) < l:
+        l = len(C[i])
+        indice = i
+
+c_prom = []
+for j in range(l):
+    suma = 0
+    for i in range(len(C)):
+        suma += C[i][j]
+    c_prom.append(suma/len(C))
+        
+    
 centrality_type[label] = 'NA'
-removed_nodes[label] = c
-max_comp[label] = mc
+removed_nodes[label] = c_prom
+max_comp[label] = MC[indice]
 
 
 #%% DEGREES 
@@ -237,7 +261,7 @@ cent = degrees2dict
 label = 'degree'
 
 ti = datetime.now()
-graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+graph = max(nx.connected_component_subgraphs(RED),key=len) 
 mc, c = cent_cutoff(graph,cent)
 print('tarda en correr: ', datetime.now()-ti)
 
@@ -252,7 +276,7 @@ cent = nx.betweenness_centrality
 label = 'shortest-path'
 
 ti = datetime.now()
-graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+graph = max(nx.connected_component_subgraphs(RED),key=len) 
 mc, c = cent_cutoff(graph,cent)
 print('tarda en correr: ', datetime.now()-ti)
 
@@ -267,7 +291,7 @@ cent = nx.subgraph_centrality
 label = 'subgraph'
 
 ti = datetime.now()
-graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+graph = max(nx.connected_component_subgraphs(RED),key=len) 
 mc, c = cent_cutoff(graph,cent)
 print('tarda en correr: ', datetime.now()-ti)
 
@@ -281,7 +305,7 @@ cent = nx.closeness_centrality
 label = 'closeness'
 
 ti = datetime.now()
-graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+graph = max(nx.connected_component_subgraphs(RED),key=len) 
 mc, c = cent_cutoff(graph,cent)
 print('tarda en correr: ', datetime.now()-ti)
 
@@ -295,7 +319,7 @@ cent = nx.current_flow_betweenness_centrality
 label = 'current flow'
 
 ti = datetime.now()
-graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+graph = max(nx.connected_component_subgraphs(RED),key=len) 
 mc, c = cent_cutoff(graph,cent,connected=True)
 print('tarda en correr: ', datetime.now()-ti)
 
@@ -309,7 +333,7 @@ cent = nx.eigenvector_centrality_numpy
 label = 'eigenvector'
 
 ti = datetime.now()
-graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+graph = max(nx.connected_component_subgraphs(RED),key=len) 
 mc, c = cent_cutoff(graph,cent)
 print('tarda en correr: ', datetime.now()-ti)
 
@@ -339,8 +363,8 @@ plot('random','gray')
 plot('degree','dodgerblue')
 plot('shortest-path','orangered')
 plot('eigenvector','lime')
-#plot('subgraph','magenta')
-#plot('closeness','darkgoldenrod')
+plot('subgraph','gold')
+#plot('closeness','magenta')
 #plot('current flow','r')
 
 plt.plot(removed_nodes['essentials'],
