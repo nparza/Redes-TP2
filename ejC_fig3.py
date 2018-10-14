@@ -79,15 +79,28 @@ def degrees2dict(graph):
 
 def cent_cutoff(graph, centrality, connected=False):
     
-    c = []          # Fracción de nodos removidos en cada iteración
-    mc = []         # Nodos de la componente máxima
+    ''' 
+        Remueve los nodos con centralidad máxima a la componente más grande
+        de un grafo hasta que ésta tenga tres nodos.
     
-    maxcomp = max(nx.connected_component_subgraphs(graph),
-                  key=len).number_of_nodes()
+        INPUTS
+        graph: es la componente gigante de algún grafo
+        centrality: función centralidad que se utiliza
+        connected: True si la función centralidad sólo puede
+        ser calculada en un grafo conexo
+        
+        OUTPUTS
+        mc (lista): nodos de la componenta máxima en cada iteración, 
+        normalizados por la cantidad de nodos originales
+        c (lista): total de nodos removidos a medida que pasan las 
+        iteraciones, normalizados por la cantidad de nodos originales
+    '''
+    
+    c = []; mc = []         
    
-    #N = graph.number_of_nodes()     # Nodos iniciales para normalizar    
-    N = max(nx.connected_component_subgraphs(graph),
-                  key=len).number_of_nodes()
+    N = graph.number_of_nodes() 
+    G = graph.copy()
+    maxcomp = G.number_of_nodes()
     
     mc.append(maxcomp/N)
     c.append(0)
@@ -97,14 +110,14 @@ def cent_cutoff(graph, centrality, connected=False):
         # Calculo centralidad de los nodos
         
         if not connected:
-            quant = list(dict(centrality(graph)).values())
-            nodos = list(graph.nodes())
+            quant = list(dict(centrality(G)).values())
+            nodos = list(G.nodes())
         
         if connected:
-            quant = list(dict(centrality(max(nx.connected_component_subgraphs(graph), 
+            quant = list(dict(centrality(max(nx.connected_component_subgraphs(G), 
                                              key=len))).values())
-            nodos = list(max(nx.connected_component_subgraphs(graph),
-                  key=len).nodes())
+            nodos = list(max(nx.connected_component_subgraphs(G),
+                             key=len).nodes())
 
         
         val = max(list(quant))      # Centralidad más grande
@@ -117,21 +130,68 @@ def cent_cutoff(graph, centrality, connected=False):
             if quant[i] >= val:
                 removed.append(nodos[i])
                 
-        graph.remove_nodes_from(removed)
+        G.remove_nodes_from(removed)
         
         # Calculo la longitud de la componente máxima y 
         # la fracción de nodos que removí
         
-        if graph.number_of_nodes() > 2:
-            maxcomp = max(nx.connected_component_subgraphs(graph),
+        while G.number_of_nodes() > 2:
+            maxcomp = max(nx.connected_component_subgraphs(G),
                           key=len).number_of_nodes()
             c.append(c[-1]+len(removed)/N)
             mc.append(maxcomp/N)
-        else:
-            break
     
     return mc, c
 
+#%%
+    
+import random
+
+def rand_cutoff(graph, step):
+    
+    ''' 
+        Remueve una cantidad (step) de nodos random a la componente más grande
+        de un grafo hasta que ésta tenga tres nodos.
+    
+        INPUTS
+        graph: es la componente gigante de algún grafo
+        step: cantidad de nodos que remueve en una iteración
+        
+        OUTPUTS
+        list_maxcomp (lista): nodos de la componenta máxima en cada iteración, 
+        normalizados por la cantidad de nodos originales
+        fraction (lista): total de nodos removidos a medida que pasan las 
+        iteraciones, normalizados por la cantidad de nodos originales
+    '''
+    
+    list_maxcomp = []; fraction = []              
+    
+    N = graph.number_of_nodes()
+    maxcomp = graph.number_of_nodes()
+    G = graph.copy()
+    
+    list_maxcomp.append(1)
+    fraction.append(0)
+    
+    while maxcomp > 2:
+        
+        nodos_disp = list(G.nodes())
+        removed = []
+        
+        for i in range(step):
+            node = random.choice(nodos_disp)
+            removed.append(node)
+            nodos_disp.remove(node)
+        
+        G.remove_nodes_from(removed)
+        maxcomp = max(nx.connected_component_subgraphs(G),
+                      key=len).number_of_nodes()
+        
+        list_maxcomp.append(maxcomp/N)
+        fraction.append(fraction[-1]+len(removed)/N)
+    
+    return list_maxcomp, fraction
+        
 
 #%% 
 
@@ -147,8 +207,6 @@ centrality_type = dict()
 graph = G_APMS
 label = 'essentials'
 
-#N = graph.number_of_nodes()
-
 G = graph.copy()
 CG = max(nx.connected_component_subgraphs(G), key=len)
 N = CG.number_of_nodes()
@@ -158,6 +216,19 @@ n = max(nx.connected_component_subgraphs(CG), key=len).number_of_nodes()
 
 removed_nodes[label] = len(graph.graph['cg_ess'])/N
 max_comp[label] = n/N
+
+#%% RANDOM - 1.5 min
+
+label = 'random'
+
+ti = datetime.now()
+graph = max(nx.connected_component_subgraphs(G_APMS),key=len) 
+mc, c = rand_cutoff(graph, 1)
+print('tarda en correr: ', datetime.now()-ti)
+
+centrality_type[label] = 'NA'
+removed_nodes[label] = c
+max_comp[label] = mc
 
 
 #%% DEGREES 
@@ -254,7 +325,7 @@ def plot(label,color):
              max_comp[label],
              color = color, 
              label = label,
-             linewidth = '1.5')
+             linewidth = '2')
     
 def applyPlotStyle():
     plt.xlabel('fracción de nodos',weight='bold',fontsize=11)
@@ -263,17 +334,22 @@ def applyPlotStyle():
     plt.legend()
     
 plt.figure(10)
-plot('degree','r')
-plot('shortest-path','magenta')
-plot('subgraph','lime')
+
+plot('random','gray')
+plot('degree','dodgerblue')
+plot('shortest-path','orangered')
+plot('eigenvector','lime')
+#plot('subgraph','magenta')
 #plot('closeness','darkgoldenrod')
-#plot('current flow','cyan')
-plot('eigenvector','gold')
+#plot('current flow','r')
+
 plt.plot(removed_nodes['essentials'],
          max_comp['essentials'],
-         color = 'darkred', 
+         color = 'darkviolet', 
          label = 'essentials',
          marker = 'h')
+
+plt.xlim([0,0.5])
 applyPlotStyle()
 plt.show(10)
   
