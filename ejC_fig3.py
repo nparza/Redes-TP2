@@ -35,6 +35,40 @@ G_APMS = nx.Graph(); G_APMS.add_edges_from(APMS);
 
 graphs = [G_Y2H,G_LIT,G_LITr,G_APMS]
 
+#%% 
+
+# Agrego atributo de esencialidad a los nodos de cada red
+
+for graph in graphs:   
+    
+    for node in list(graph.nodes()):  
+        essential = False
+        i = 0      
+        while essential == False and i < len(Essential):     
+            if Essential[i] == node:
+                essential = True
+            i += 1 
+        graph.nodes[node]['Essential'] = essential
+
+#%%
+
+# Agrego atributos al grafo relacionados a sus nodos esenciales
+            
+for graph in graphs:
+    
+    G = graph.copy()
+    cg = max(nx.connected_component_subgraphs(G), key=len)
+    ess = []
+    degree_ess = []
+    for node in cg:
+        if cg.nodes[node]['Essential'] == True:
+            ess.append(node)
+    
+    # Lista de nodos esenciales de su componente gigante
+    
+    graph.graph['cg_ess'] = ess
+
+
 #%% Funciones 
 
 def degrees2dict(graph):
@@ -51,7 +85,9 @@ def cent_cutoff(graph, centrality, connected=False):
     maxcomp = max(nx.connected_component_subgraphs(graph),
                   key=len).number_of_nodes()
    
-    N = graph.number_of_nodes()     # Nodos iniciales para normalizar    
+    #N = graph.number_of_nodes()     # Nodos iniciales para normalizar    
+    N = max(nx.connected_component_subgraphs(graph),
+                  key=len).number_of_nodes()
     
     mc.append(maxcomp/N)
     c.append(0)
@@ -105,6 +141,23 @@ diccionarios que pueden tener cosas '''
 removed_nodes = dict()
 max_comp = dict()
 centrality_type = dict()
+
+#%% ESSENTIALS - Remuevo los nodos esenciales
+
+graph = G_APMS
+label = 'essentials'
+
+#N = graph.number_of_nodes()
+
+G = graph.copy()
+CG = max(nx.connected_component_subgraphs(G), key=len)
+N = CG.number_of_nodes()
+CG.remove_nodes_from(graph.graph['cg_ess'])
+n = max(nx.connected_component_subgraphs(CG), key=len).number_of_nodes()
+
+
+removed_nodes[label] = len(graph.graph['cg_ess'])/N
+max_comp[label] = n/N
 
 
 #%% DEGREES 
@@ -201,7 +254,7 @@ def plot(label,color):
              max_comp[label],
              color = color, 
              label = label,
-             linewidth = '1')
+             linewidth = '1.5')
     
 def applyPlotStyle():
     plt.xlabel('fracción de nodos',weight='bold',fontsize=11)
@@ -213,9 +266,14 @@ plt.figure(10)
 plot('degree','r')
 plot('shortest-path','magenta')
 plot('subgraph','lime')
-plot('closeness','gold')
-plot('current flow','cyan')
-plot('eigenvector','darkgoldenrod')
+#plot('closeness','darkgoldenrod')
+#plot('current flow','cyan')
+plot('eigenvector','gold')
+plt.plot(removed_nodes['essentials'],
+         max_comp['essentials'],
+         color = 'darkred', 
+         label = 'essentials',
+         marker = 'h')
 applyPlotStyle()
 plt.show(10)
   
