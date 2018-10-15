@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-label = 'Y2H'
+label = 'LITr'
 
 entrada = open('fig3_'+label+'.csv')
 
@@ -30,7 +30,7 @@ def plot(label,color):
     plt.plot(x[label],
              y[label],
              color = color, 
-             label = label,
+             label = label, 
              linewidth = '2')
     
 def applyPlotStyle():

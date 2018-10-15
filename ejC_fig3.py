@@ -110,7 +110,7 @@ def cent_cutoff(graph, centrality, connected=False):
         # Calculo centralidad de los nodos
         
         if not connected:
-            quant = list(dict(centrality(G)).values())
+            quant = list(dict(centrality(G,max_iter=100,tol=1e-3)).values())
             nodos = list(G.nodes())
         
         if connected:
@@ -204,7 +204,7 @@ removed_nodes = dict()
 max_comp = dict()
 centrality_type = dict()
 
-RED = G_Y2H
+RED = G_LITr
 
 #%% ESSENTIALS - Remuevo los nodos esenciales
 
@@ -220,14 +220,14 @@ n = max(nx.connected_component_subgraphs(CG), key=len).number_of_nodes()
 removed_nodes[label] = [len(graph.graph['cg_ess'])/N]
 max_comp[label] = [n/N]
 
-#%% RANDOM - 1.5 min x 10
+#%% RANDOM - 2 min aprox dependiendo de la red x 10
 
 label = 'random'
 
 ti = datetime.now()
 graph = max(nx.connected_component_subgraphs(RED),key=len)
 
-C = []
+C = []  
 MC = []
 for i in range(10):
     mc, c = rand_cutoff(graph, 1)
@@ -255,7 +255,7 @@ removed_nodes[label] = c_prom
 max_comp[label] = MC[indice]
 
 
-#%% DEGREES 
+#%% DEGREES - 10 s aprox
 
 cent = degrees2dict
 label = 'degree'
@@ -270,7 +270,7 @@ removed_nodes[label] = c
 max_comp[label] = mc
 
 
-#%% SHORTEST-PATH BETWEENNESS - 5 min 
+#%% SHORTEST-PATH BETWEENNESS - tarda < 13 min 
 
 cent = nx.betweenness_centrality
 label = 'shortest-path'
@@ -285,7 +285,7 @@ removed_nodes[label] = c
 max_comp[label] = mc
 
 
-#%% SUBGRAPH - 1.5 min 
+#%% SUBGRAPH - tarda < 7 min 
 
 cent = nx.subgraph_centrality
 label = 'subgraph'
@@ -298,6 +298,23 @@ print('tarda en correr: ', datetime.now()-ti)
 centrality_type[label] = 'local'
 removed_nodes[label] = c
 max_comp[label] = mc
+
+
+#%% EIGENVECTOR - tarda < 4 min 
+# Para LITr max_iter=100,tol=1e-3, no-numpy
+
+cent = nx.eigenvector_centrality
+label = 'eigenvector'
+
+ti = datetime.now()
+graph = max(nx.connected_component_subgraphs(RED),key=len) 
+mc, c = cent_cutoff(graph,cent)
+print('tarda en correr: ', datetime.now()-ti)
+
+centrality_type[label] = 'local'
+removed_nodes[label] = c
+max_comp[label] = mc
+
 
 #%% CLOSENESS - 10 min
 
@@ -326,21 +343,6 @@ print('tarda en correr: ', datetime.now()-ti)
 centrality_type[label] = 'betweenness'
 removed_nodes[label] = c
 max_comp[label] = mc
-
-#%% EIGENVECTOR - 40 s
-
-cent = nx.eigenvector_centrality_numpy
-label = 'eigenvector'
-
-ti = datetime.now()
-graph = max(nx.connected_component_subgraphs(RED),key=len) 
-mc, c = cent_cutoff(graph,cent)
-print('tarda en correr: ', datetime.now()-ti)
-
-centrality_type[label] = 'local'
-removed_nodes[label] = c
-max_comp[label] = mc
-
 
 #%% Grafico - FIGURA 3 Zotenko
 
@@ -373,7 +375,7 @@ plt.plot(removed_nodes['essentials'],
          label = 'essentials',
          marker = 'h')
 
-plt.xlim([0,0.5])
+plt.xlim([0,0.3])
 applyPlotStyle()
 plt.show(10)
   

@@ -1,0 +1,5 @@
+     Red Esenciales Random no-esenciales
+0    Y2H      0.624      0.625 +/- 0.011
+1    LIT      0.281      0.415 +/- 0.004
+2  LIT_r      0.575      0.540 +/- 0.004
+3   APMS      0.324      0.374 +/- 0.015

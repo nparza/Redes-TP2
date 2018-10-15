@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-label = 'Y2H'
+label = 'LITr'
 
-centralities = ['random','degree','shortest-path','eigenvector','subgraph','essentials']
+centralities = ['random','degree','shortest-path',
+                'eigenvector','subgraph','essentials']
 
 ## Dejo los datos en el formato que los deseo guardar
 
